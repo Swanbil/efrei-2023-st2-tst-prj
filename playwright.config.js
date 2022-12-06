@@ -51,7 +51,7 @@ const config = {
       use: {
         ...devices['Desktop Chrome'],
       },
-    },
+    }
 
     /* Test against mobile viewports. */
     // {
