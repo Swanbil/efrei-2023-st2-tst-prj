@@ -1,11 +1,17 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+import { HomePage } from '../pages/home.page';
+import { AddNewEmployeePage } from '../pages/addNewEmployee.page';
+import { AddNewTeamsPage } from '../pages/addNewTeams.page';
+import { ListEmployeePage } from '../pages/listEmployee.page';
+import { ListTeamPage } from '../pages/listTeams.page';
+import { ResetDatabasePage } from '../pages/resetDatabase.page';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('https://b.hr.dmerej.info/');
+  const homepage = new HomePage(page);
+  await homepage.goto();
 });
 
-//TEAMS//
 
 // //Display teams
 test('Display team', async ({ page }) => {
@@ -71,8 +77,8 @@ test('Delete empty team', async ({ page }) => {
 
 //Create an employee
 test('Create an employee', async ({ page }) => {
-  const pageNewemployee = page.getByRole('link', { name: 'Add new employee' });
-  await pageNewemployee.click();
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
 
   const employee = {
     name: "employee1",
@@ -83,29 +89,37 @@ test('Create an employee', async ({ page }) => {
     hiringDate: "2000-05-25",
     jobTitle: "Testor"
   };
-  await page.getByPlaceholder('Name').fill(employee.name);
 
-  await page.getByPlaceholder('Email').fill(employee.email);
-
-  await page.locator('input[name=address_line1] >> visible=true').fill(employee.address);
-
-  await page.getByPlaceholder('Zip code').fill(employee.zipCode);
-
-  await page.getByPlaceholder('City').fill(employee.city);
-
-  await page.locator('input[name=hiring_date] >> visible=true').fill(employee.hiringDate);
-
-  await page.getByLabel('Job title').fill(employee.jobTitle);
-
-  await page.getByRole('button', { name: 'Add' }).click();
-
+  await addNewEmployeePage.createEmployee(employee);
+  
   //return to list employee
-  await page.goto('https://b.hr.dmerej.info/employees');
-
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+  
   //test if the list employee contain the new user
-  await expect(page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
+  await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
 
 })
+
+test('List all employees with correct informations', async ({ page }) => {
+  const pageListEmployees = page.getByRole('link', { name: 'List employees' });
+  await pageListEmployees.click();
+
+  let tableLocator = await page.locator('tbody tr');
+  const employee = ["employee1", "employee1@email.com", "no", "Edit", "Delete"]
+
+  let listEmployees = [];
+  let listExpectedEmployees = [];
+  for (const el of await tableLocator.elementHandles()) {
+    const row = await el.innerText();
+    listEmployees.push(row.toString().replace(/\t/g, '-'))
+    listExpectedEmployees.push(employee.join('-'))
+  }
+  console.log("listEmployees", listEmployees)
+
+
+
+});
 
 test('homepage has title and links to list teams page', async ({ page }) => {
   const getStarted = page.getByRole('link', { name: 'List teams' });
