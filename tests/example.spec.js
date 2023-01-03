@@ -107,11 +107,16 @@ test('Create an employee', async ({ page }) => {
 
 })
 
-test('homepage has title and links to list teams page', async ({ page }) => {
-  const getStarted = page.getByRole('link', { name: 'List teams' });
-  await expect(getStarted).toHaveAttribute('href', '/teams');
-  await getStarted.click();
-  await expect(page).toHaveURL(/.*teams/);
-  const row1 = page.locator('tr:has-text("teamtest")');
-  // await expect(row1).toEqual('teamtest'); // marche pas
+// Promote as manager
+test('Promote as manager', async ({ page }) => {
+  await page.goto('https://b.hr.dmerej.info/employees');
+  const pageEdit = page.getByRole('link', { name: 'Edit' }).last();
+  await pageEdit.click();
+  const promoteButton = page.getByRole('link', { name: 'Promote as manager' });
+  await promoteButton.click();
+  const proceedButton = page.getByRole('button', { name: 'Proceed' });
+  await proceedButton.click();
+  await page.goto('https://b.hr.dmerej.info/employees');
+  const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
+  await expect(promoted).toContain("yes");
 });
