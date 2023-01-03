@@ -29,4 +29,9 @@ export class ListEmployeePage {
         const proceedButton = this.page.getByRole('button', { name: 'Proceed' });
         await proceedButton.click();
     }
+
+    async returnToHomePage() {
+        const pageEdit = this.page.getByRole('link', { name: 'Home' });
+        await pageEdit.click();
+    }
 }

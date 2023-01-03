@@ -137,3 +137,10 @@ test('Promote as manager', async ({ page }) => {
   const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
   await expect(promoted).toContain("yes");
 });
+
+// Return to home page
+test('Return to home page', async ({ page }) => {
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.returnToHomePage();
+  await expect(page).toHaveURL('https://b.hr.dmerej.info/');
+});
