@@ -20,7 +20,6 @@ export class ListEmployeePage {
         }
         return listEmployees;
     }
-
     async promoteAsManager() {
         const pageEdit = this.page.getByRole('link', { name: 'Edit' }).last();
         await pageEdit.click();

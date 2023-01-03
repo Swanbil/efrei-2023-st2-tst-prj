@@ -36,19 +36,27 @@ test('Create team', async ({ page }) => {
 
 });
 
-// Display teams
 test('Display team', async ({ page }) => {
+  const addNewTeamsPage = new AddNewTeamsPage(page)
+  await addNewTeamsPage.goto();
+  const team = {
+    name: 'Test Team',
+  };
+  await addNewTeamsPage.createTeam(team);
+
   const listTeamPage = new ListTeamPage(page);
   await listTeamPage.goto();
-
-  const table = listTeamPage.page.locator('table');
-  if (await table.isVisible() == false) {
-    await expect(listTeamPage.page.locator('text=No teams yet')).toBeVisible();
+  const listTeams = await listTeamPage.getListTeams();
+  
+  let tableLocator = await listTeamPage.page.locator('tbody tr');
+  let listExpectedTeams = []
+  for (const el of await tableLocator.elementHandles()) {
+    listExpectedTeams.push('Test Team');
   }
+  await expect(listTeams).toEqual(listExpectedTeams);
 });
 
 
-// Display teams members
 test('Display team members', async ({ page }) => {
   const pageTeams = page.getByRole('link', { name: 'List teams' });
   await pageTeams.click();
@@ -61,7 +69,6 @@ test('Display team members', async ({ page }) => {
   //Vérifier que les membres s'affichent
 });
 
-//Delete empty team
 test('Delete empty team', async ({ page }) => {
   const pageTeams = page.getByRole('link', { name: 'List teams' });
   await pageTeams.click();
@@ -76,7 +83,6 @@ test('Delete empty team', async ({ page }) => {
   await expect(page).toHaveURL(/.*teams/);
 });
 
-//Create an employee
 test('Create an employee', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
   await addNewEmployeePage.goto();
