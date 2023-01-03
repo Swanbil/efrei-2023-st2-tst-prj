@@ -8,6 +8,10 @@ import { ListTeamPage } from '../pages/listTeams.page';
 import { ResetDatabasePage } from '../pages/resetDatabase.page';
 
 test.beforeEach(async ({ page }) => {
+  const resetDbPage = new ResetDatabasePage(page);
+  await resetDbPage.goto();
+  await resetDbPage.resetDatabase();
+
   const homepage = new HomePage(page);
   await homepage.goto();
 });
@@ -102,23 +106,18 @@ test('Create an employee', async ({ page }) => {
 })
 
 test('List all employees with correct informations', async ({ page }) => {
-  const pageListEmployees = page.getByRole('link', { name: 'List employees' });
-  await pageListEmployees.click();
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
 
   let tableLocator = await page.locator('tbody tr');
   const employee = ["employee1", "employee1@email.com", "no", "Edit", "Delete"]
 
-  let listEmployees = [];
+  let listEmployees = await listEmployeePage.getListEmployee();
   let listExpectedEmployees = [];
   for (const el of await tableLocator.elementHandles()) {
-    const row = await el.innerText();
-    listEmployees.push(row.toString().replace(/\t/g, '-'))
-    listExpectedEmployees.push(employee.join('-'))
+    listExpectedEmployees.push(employee.join('-'));
   }
-  console.log("listEmployees", listEmployees)
-
-
-
+  await expect(listEmployees).toEqual(listExpectedEmployees);
 });
 
 // Promote as manager
