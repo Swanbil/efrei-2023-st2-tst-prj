@@ -16,16 +16,6 @@ test.beforeEach(async ({ page }) => {
   await homepage.goto();
 });
 
-
-// Display teams
-test('Display team', async ({ page }) => {
-  const pageTeams = page.getByRole('link', { name: 'List teams' });
-  await pageTeams.click();
-  await expect(page).toHaveURL(/.*teams/);
-
-  //Vérifier que les équipes s'affichent
-});
-
 //Create teams
 test('Create team', async ({ page }) => {
   const addNewTeamsPage = new AddNewTeamsPage(page)
@@ -45,6 +35,18 @@ test('Create team', async ({ page }) => {
   await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
 
 });
+
+// Display teams
+test('Display team', async ({ page }) => {
+  const listTeamPage = new ListTeamPage(page);
+  await listTeamPage.goto();
+
+  const table = listTeamPage.page.locator('table');
+  if (await table.isVisible() == false) {
+    await expect(listTeamPage.page.locator('text=No teams yet')).toBeVisible();
+  }
+});
+
 
 // Display teams members
 test('Display team members', async ({ page }) => {
