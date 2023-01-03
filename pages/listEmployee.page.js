@@ -39,8 +39,12 @@ export class ListEmployeePage {
         await pageEdit.click();
     }
 
-    async pressDeleteButton(){
+    async pressDeleteButton() {
         const deleteButton = this.page.getByRole('link', { name: 'Delete' });
         await deleteButton.click();
-      }
+    }
+    async goToBasincInfoPage() {
+        const updateBasicInfoLink = this.page.locator('a:has-text("Update basic info")');
+        updateBasicInfoLink.click();
+    }
 }

@@ -26,11 +26,11 @@ test('Create team', async ({ page }) => {
   };
 
   await addNewTeamsPage.createTeam(team);
-  
+
   //Return to list Teams
   const listTeamPage = new ListTeamPage(page);
   await listTeamPage.goto();
-  
+
   //Expect the page to contain the name of the team
   await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
 
@@ -47,7 +47,7 @@ test('Display team', async ({ page }) => {
   const listTeamPage = new ListTeamPage(page);
   await listTeamPage.goto();
   const listTeams = await listTeamPage.getListTeams();
-  
+
   let tableLocator = await listTeamPage.page.locator('tbody tr');
   let listExpectedTeams = []
   for (const el of await tableLocator.elementHandles()) {
@@ -98,11 +98,11 @@ test('Create an employee', async ({ page }) => {
   };
 
   await addNewEmployeePage.createEmployee(employee);
-  
+
   //return to list employee
   const listEmployeePage = new ListEmployeePage(page);
   await listEmployeePage.goto();
-  
+
   //test if the list employee contain the new user
   await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
 
@@ -170,7 +170,38 @@ test('Access to the edit function', async ({ page }) => {
 })
 
 test('Edit an employee', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
 
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await listEmployeePage.goToLastEmployeeEditPage();
+  await listEmployeePage.goToBasincInfoPage();
+
+  //Fill new Name and Email
+  await page.getByPlaceholder('Name').fill('newEmployee1');
+  await page.getByPlaceholder('Email').fill('newemployee1@email.com');
+
+  //Click on button "Update"
+  const updateButton = page.getByRole('button', { name: 'Update' });
+  await updateButton.click();
+
+  //Check if the new name and email are displayed
+  await listEmployeePage.goto();
+  await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText('newEmployee1');
 })
 
 // Return to home page
