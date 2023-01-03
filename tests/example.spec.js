@@ -168,3 +168,9 @@ test('Access to the edit function', async ({ page }) => {
   //Check if the page is the edit page
   await expect(listEmployeePage.page.locator('text=Edit employee')).toBeVisible();
 })
+// Return to home page
+test('Return to home page', async ({ page }) => {
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.returnToHomePage();
+  await expect(page).toHaveURL('https://b.hr.dmerej.info/');
+});
