@@ -29,6 +29,11 @@ export class ListEmployeePage {
         await proceedButton.click();
     }
 
+    async goToLastEmployeeEditPage() {
+        const pageEdit = await this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
+        await pageEdit.click();
+    }
+
     async returnToHomePage() {
         const pageEdit = this.page.getByRole('link', { name: 'Home' });
         await pageEdit.click();
