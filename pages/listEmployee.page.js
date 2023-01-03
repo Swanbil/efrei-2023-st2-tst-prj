@@ -33,4 +33,9 @@ export class ListEmployeePage {
         const pageEdit = this.page.getByRole('link', { name: 'Home' });
         await pageEdit.click();
     }
+
+    async pressDeleteButton(){
+        const deleteButton = this.page.getByRole('link', { name: 'Delete' });
+        await deleteButton.click();
+      }
 }
