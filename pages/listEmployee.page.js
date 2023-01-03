@@ -19,6 +19,14 @@ export class ListEmployeePage {
             listEmployees.push(row.toString().replace(/\t/g, '-'));
         }
         return listEmployees;
+    }
 
+    async promoteAsManager() {
+        const pageEdit = this.page.getByRole('link', { name: 'Edit' }).last();
+        await pageEdit.click();
+        const promoteButton = this.page.getByRole('link', { name: 'Promote as manager' });
+        await promoteButton.click();
+        const proceedButton = this.page.getByRole('button', { name: 'Proceed' });
+        await proceedButton.click();
     }
 }

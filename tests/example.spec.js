@@ -117,14 +117,21 @@ test('List all employees with correct informations', async ({ page }) => {
 
 // Promote as manager
 test('Promote as manager', async ({ page }) => {
-  await page.goto('https://b.hr.dmerej.info/employees');
-  const pageEdit = page.getByRole('link', { name: 'Edit' }).last();
-  await pageEdit.click();
-  const promoteButton = page.getByRole('link', { name: 'Promote as manager' });
-  await promoteButton.click();
-  const proceedButton = page.getByRole('button', { name: 'Proceed' });
-  await proceedButton.click();
-  await page.goto('https://b.hr.dmerej.info/employees');
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+  await addNewEmployeePage.createEmployee(employee);
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+  await listEmployeePage.promoteAsManager();
   const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
   await expect(promoted).toContain("yes");
 });
