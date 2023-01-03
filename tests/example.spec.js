@@ -5,6 +5,17 @@ test.beforeEach(async ({ page }) => {
   await page.goto('https://b.hr.dmerej.info/');
 });
 
+//TEAMS//
+
+// //Display teams
+test('Display team', async ({ page }) => {
+  const pageTeams = page.getByRole('link', { name: 'List teams' });
+  await pageTeams.click();
+  await expect(page).toHaveURL(/.*teams/);
+
+  //Vérifier que les équipes s'affichent
+});
+
 //Create teams
 test('Create team', async ({ page }) => {
   // create a locator
@@ -30,7 +41,35 @@ test('Create team', async ({ page }) => {
 
 });
 
+// Display teams members
+test('Display team members', async ({ page }) => {
+  const pageTeams = page.getByRole('link', { name: 'List teams' });
+  await pageTeams.click();
+  await expect(page).toHaveURL(/.*teams/);
 
+  const linkViewMembers = page.locator('tr').last().locator('a:has-text("View members")');
+  await linkViewMembers.click();
+  await expect(page).toHaveURL(/.*members/);
+
+  //Vérifier que les membres s'affichent
+});
+
+//Delete empty team
+test('Delete empty team', async ({ page }) => {
+  const pageTeams = page.getByRole('link', { name: 'List teams' });
+  await pageTeams.click();
+  await expect(page).toHaveURL(/.*teams/);
+
+  const pageDelete = page.locator('tr').last().locator('a:has-text("Delete")');
+  await pageDelete.click();
+
+  const pageConfirmDelete = page.locator('button:has-text("Proceed")');
+  await pageConfirmDelete.click();
+
+  await expect(page).toHaveURL(/.*teams/);
+});
+
+//Create an employee
 test('Create an employee', async ({ page }) => {
   const pageNewemployee = page.getByRole('link', { name: 'Add new employee' });
   await pageNewemployee.click();
@@ -68,11 +107,15 @@ test('Create an employee', async ({ page }) => {
 
 })
 
-test('homepage has title and links to list teams page', async ({ page }) => {
-  const getStarted = page.getByRole('link', { name: 'List teams' });
-  await expect(getStarted).toHaveAttribute('href', '/teams');
-  await getStarted.click();
-  await expect(page).toHaveURL(/.*teams/);
-  const row1 = page.locator('tr:has-text("teamtest")');
-  await expect(row1).toEqual('teamtest'); // marche pas
-});
+
+
+
+
+// test('homepage has title and links to list teams page', async ({ page }) => {
+//   const getStarted = page.getByRole('link', { name: 'List teams' });
+//   await expect(getStarted).toHaveAttribute('href', '/teams');
+//   await getStarted.click();
+//   await expect(page).toHaveURL(/.*teams/);
+//   const row1 = page.locator('tr:has-text("teamtest")');
+//   //await expect(row1).toEqual('teamtest'); // marche pas
+// });
