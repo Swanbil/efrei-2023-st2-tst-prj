@@ -5,22 +5,31 @@ test.beforeEach(async ({ page }) => {
   await page.goto('https://b.hr.dmerej.info/');
 });
 
-test('homepage has title and links to list employees page', async ({ page }) => {
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/HR DB/);
-
+//Create teams
+test('Create team', async ({ page }) => {
   // create a locator
-  const getStarted = page.getByRole('link', { name: 'List Employees' });
-
-  // Expect an attribute "to be strictly equal" to the value.
-  await expect(getStarted).toHaveAttribute('href', '/employees');
+  const getStarted = page.getByRole('link', { name: 'Create new team' });
 
   // Click the get started link.
   await getStarted.click();
 
   // Expects the URL to contain intro.
-  await expect(page).toHaveURL(/.*employees/);
+  await expect(page).toHaveURL(/.*add_team/);
+
+  // Fill the form.
+  await page.fill('input[name="name"]', 'Test Team');
+
+  // Click the submit button.
+  await page.click('button:has-text("Add")');
+
+  //Go to the page Teams
+  await page.goto('https://b.hr.dmerej.info/teams');
+
+  //Expect the page to contain the name of the team
+  await expect(page.locator('table > tbody > tr').last()).toContainText('Test Team');
+
 });
+
 
 test('Create an employee', async ({ page }) => {
   const pageNewemployee = page.getByRole('link', { name: 'Add new employee' });
@@ -58,6 +67,7 @@ test('Create an employee', async ({ page }) => {
   await expect(page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
 
 })
+
 test('homepage has title and links to list teams page', async ({ page }) => {
   const getStarted = page.getByRole('link', { name: 'List teams' });
   await expect(getStarted).toHaveAttribute('href', '/teams');
