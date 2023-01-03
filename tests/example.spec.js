@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 
-// //Display teams
+// Display teams
 test('Display team', async ({ page }) => {
   const pageTeams = page.getByRole('link', { name: 'List teams' });
   await pageTeams.click();
@@ -24,26 +24,21 @@ test('Display team', async ({ page }) => {
 
 //Create teams
 test('Create team', async ({ page }) => {
-  // create a locator
-  const getStarted = page.getByRole('link', { name: 'Create new team' });
+  const addNewTeamsPage = new AddNewTeamsPage(page)
+  await addNewTeamsPage.goto();
 
-  // Click the get started link.
-  await getStarted.click();
+  const team = {
+    name: 'Test Team',
+  };
 
-  // Expects the URL to contain intro.
-  await expect(page).toHaveURL(/.*add_team/);
-
-  // Fill the form.
-  await page.fill('input[name="name"]', 'Test Team');
-
-  // Click the submit button.
-  await page.click('button:has-text("Add")');
-
-  //Go to the page Teams
-  await page.goto('https://b.hr.dmerej.info/teams');
-
+  await addNewTeamsPage.createTeam(team);
+  
+  //Return to list Teams
+  const listTeamPage = new ListTeamPage(page);
+  await listTeamPage.goto();
+  
   //Expect the page to contain the name of the team
-  await expect(page.locator('table > tbody > tr').last()).toContainText('Test Team');
+  await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
 
 });
 

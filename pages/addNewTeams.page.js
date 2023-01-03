@@ -10,4 +10,12 @@ export class AddNewTeamsPage {
     async goto() {
         await this.page.goto(this.url);
     }
+
+    async createTeam(team) {
+        // Fill the form.
+        await this.page.fill('input[name="name"]', team.name);
+
+        // Click the submit button.
+        await this.page.click('button:has-text("Add")');
+    }
 }
