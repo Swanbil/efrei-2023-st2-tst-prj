@@ -167,5 +167,62 @@ test('Promote as manager', async ({ page }) => {
   await listEmployeePage.goto();
   await listEmployeePage.promoteAsManager();
   const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
-  await expect(promoted).toContain("yes");
+  expect(promoted).toContain("yes");
+});
+
+test('Access to the edit function', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await listEmployeePage.goToLastEmployeeEditPage();
+
+  //Check if the page is the edit page
+  await expect(page.locator('text=Edit employee')).toBeVisible();
+})
+
+test('Edit an employee', async ({ page }) => {
+
+})
+
+// Return to home page
+test('Return to home page', async ({ page }) => {
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.returnToHomePage();
+  await expect(page).toHaveURL('https://b.hr.dmerej.info/');
+});
+
+// display employee info before deletion
+test('display employee info before deletion', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+  await addNewEmployeePage.createEmployee(employee);
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.pressDeleteButton();
+  const info = await page.locator('p').first().textContent();
+  expect(info).toContain("name: employee1");
+  expect(info).toContain("email: employee1@email.com");
 });
