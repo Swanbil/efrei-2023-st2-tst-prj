@@ -31,6 +31,7 @@ export class ListEmployeePage {
 
     async goToLastEmployeeEditPage() {
         const pageEdit = await this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
+        await pageEdit.click();
     }
 
     async returnToHomePage() {

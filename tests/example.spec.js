@@ -166,8 +166,13 @@ test('Access to the edit function', async ({ page }) => {
   await listEmployeePage.goToLastEmployeeEditPage();
 
   //Check if the page is the edit page
-  await expect(listEmployeePage.page.locator('text=Edit employee')).toBeVisible();
+  await expect(page.locator('text=Edit employee')).toBeVisible();
 })
+
+test('Edit an employee', async ({ page }) => {
+
+})
+
 // Return to home page
 test('Return to home page', async ({ page }) => {
   const listEmployeePage = new ListEmployeePage(page);
