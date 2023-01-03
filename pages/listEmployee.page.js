@@ -19,6 +19,5 @@ export class ListEmployeePage {
             listEmployees.push(row.toString().replace(/\t/g, '-'));
         }
         return listEmployees;
-
     }
 }
