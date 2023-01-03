@@ -107,15 +107,11 @@ test('Create an employee', async ({ page }) => {
 
 })
 
-
-
-
-
-// test('homepage has title and links to list teams page', async ({ page }) => {
-//   const getStarted = page.getByRole('link', { name: 'List teams' });
-//   await expect(getStarted).toHaveAttribute('href', '/teams');
-//   await getStarted.click();
-//   await expect(page).toHaveURL(/.*teams/);
-//   const row1 = page.locator('tr:has-text("teamtest")');
-//   //await expect(row1).toEqual('teamtest'); // marche pas
-// });
+test('homepage has title and links to list teams page', async ({ page }) => {
+  const getStarted = page.getByRole('link', { name: 'List teams' });
+  await expect(getStarted).toHaveAttribute('href', '/teams');
+  await getStarted.click();
+  await expect(page).toHaveURL(/.*teams/);
+  const row1 = page.locator('tr:has-text("teamtest")');
+  // await expect(row1).toEqual('teamtest'); // marche pas
+});
