@@ -143,3 +143,28 @@ test('Promote as manager', async ({ page }) => {
   const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
   await expect(promoted).toContain("yes");
 });
+
+test('Access to the edit function', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await listEmployeePage.goToLastEmployeeEditPage();
+
+  //Check if the page is the edit page
+  await expect(listEmployeePage.page.locator('text=Edit employee')).toBeVisible();
+})

@@ -28,4 +28,9 @@ export class ListEmployeePage {
         const proceedButton = this.page.getByRole('button', { name: 'Proceed' });
         await proceedButton.click();
     }
+
+    async goToLastEmployeeEditPage() {
+        const pageEdit = await this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
+        await pageEdit.click();
+    }
 }
