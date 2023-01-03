@@ -58,15 +58,43 @@ test('Display team', async ({ page }) => {
 
 
 test('Display team members', async ({ page }) => {
-  const pageTeams = page.getByRole('link', { name: 'List teams' });
-  await pageTeams.click();
-  await expect(page).toHaveURL(/.*teams/);
+  const addNewTeamsPage = new AddNewTeamsPage(page)
+  await addNewTeamsPage.goto();
+  const team = {
+    name: 'Test Team',
+  };
+  await addNewTeamsPage.createTeam(team);
 
-  const linkViewMembers = page.locator('tr').last().locator('a:has-text("View members")');
-  await linkViewMembers.click();
-  await expect(page).toHaveURL(/.*members/);
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+  await addNewEmployeePage.createEmployee(employee);
 
-  //Vérifier que les membres s'affichent
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+  const pageEdit = await listEmployeePage.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
+  await pageEdit.click();
+  const linkAddToTeam = await listEmployeePage.page.getByRole('link', { name: 'Add to team' });
+  await linkAddToTeam.click();
+
+  await listEmployeePage.page.locator('.form-select').selectOption({ label: team.name + ' team' })
+  await listEmployeePage.page.getByRole('button', { name: 'Add' }).click();
+
+  const listTeamPage = new ListTeamPage(page);
+  await listTeamPage.goto();
+  await listTeamPage.goToListLastTeamMembers();
+  const listMembers = await listTeamPage.getListTeamMembers();
+
+  await expect(listMembers[0]).toBe(('employee1'));
+
 });
 
 test('Delete empty team', async ({ page }) => {
@@ -86,7 +114,6 @@ test('Delete empty team', async ({ page }) => {
 test('Create an employee', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
   await addNewEmployeePage.goto();
-
   const employee = {
     name: "employee1",
     email: "employee1@email.com",
@@ -96,7 +123,6 @@ test('Create an employee', async ({ page }) => {
     hiringDate: "2000-05-25",
     jobTitle: "Testor"
   };
-
   await addNewEmployeePage.createEmployee(employee);
 
   //return to list employee
