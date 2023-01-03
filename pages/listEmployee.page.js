@@ -10,4 +10,15 @@ export class ListEmployeePage {
     async goto() {
         await this.page.goto(this.url);
     }
+
+    async getListEmployee() {
+        let tableLocator = await this.page.locator('tbody tr');
+        let listEmployees = [];
+        for (const el of await tableLocator.elementHandles()) {
+            const row = await el.innerText();
+            listEmployees.push(row.toString().replace(/\t/g, '-'));
+        }
+        return listEmployees;
+
+    }
 }
