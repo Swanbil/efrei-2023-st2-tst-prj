@@ -12,7 +12,6 @@ export class ResetDatabasePage {
     }
 
     async resetDatabase (){
-        const proceedButton = this.page.getByRole('button', { name: 'Proceed' });
-        await proceedButton.click();
+        await this.page.getByRole('button', { name: 'Proceed' }).click();
     }
 }

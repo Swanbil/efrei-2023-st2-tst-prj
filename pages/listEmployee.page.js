@@ -12,7 +12,7 @@ export class ListEmployeePage {
     }
 
     async getListEmployee() {
-        let tableLocator = await this.page.locator('tbody tr');
+        let tableLocator = this.page.locator('tbody tr');
         let listEmployees = [];
         for (const el of await tableLocator.elementHandles()) {
             const row = await el.innerText();
@@ -30,7 +30,7 @@ export class ListEmployeePage {
     }
 
     async goToLastEmployeeEditPage() {
-        const pageEdit = await this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
+        const pageEdit = this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
         await pageEdit.click();
     }
 
@@ -40,11 +40,10 @@ export class ListEmployeePage {
     }
 
     async pressDeleteButton() {
-        const deleteButton = this.page.getByRole('link', { name: 'Delete' });
-        await deleteButton.click();
+        await this.page.getByRole('link', { name: 'Delete' }).click();
     }
     async goToBasincInfoPage() {
         const updateBasicInfoLink = this.page.locator('a:has-text("Update basic info")');
-        updateBasicInfoLink.click();
+        await updateBasicInfoLink.click();
     }
 }

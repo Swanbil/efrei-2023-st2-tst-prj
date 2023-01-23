@@ -17,21 +17,21 @@ export class ListTeamPage {
     }
 
     async getListTeams() {
-        let tableLocator = await this.page.locator('tbody tr');
+        let tableLocator = this.page.locator('tbody > tr');
         let listTeams = [];
-        for (const el of await tableLocator.elementHandles()) {
-            const row = await el.innerText();
-            listTeams.push(row.toString().replace(/\t/g, '-').split('-')[0]);
+        const rowCount = await tableLocator.count();
+        for (let i = 0; i < rowCount; i++) {
+            listTeams.push(await tableLocator.nth(i).locator('td').nth(0).innerText())
         }
         return listTeams;
     }
 
-    async getListTeamMembers(){
-        let tableLocator = await this.page.locator('ul li');
+    async getListTeamMembers() {
+        let tableLocator = this.page.locator('ul > li');
         let listTeamMembers = [];
-        for (const el of await tableLocator.elementHandles()) {
-            const listElement = await el.innerText();
-            listTeamMembers.push(listElement);
+        const rowCount = await tableLocator.count();
+        for (let i = 0; i < rowCount; i++) {
+            listTeamMembers.push(await tableLocator.nth(i).innerText())
         }
         return listTeamMembers;
 

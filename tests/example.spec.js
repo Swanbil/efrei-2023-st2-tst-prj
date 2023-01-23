@@ -7,16 +7,16 @@ import { ListEmployeePage } from '../pages/listEmployee.page';
 import { ListTeamPage } from '../pages/listTeams.page';
 import { ResetDatabasePage } from '../pages/resetDatabase.page';
 
-test.beforeEach(async ({ page }) => {
+test.describe.configure({ mode: 'serial' });
+
+test.beforeEach(async ({ page }, testInfo) => {
   const resetDbPage = new ResetDatabasePage(page);
   await resetDbPage.goto();
   await resetDbPage.resetDatabase();
-
   const homepage = new HomePage(page);
   await homepage.goto();
 });
 
-//Create teams
 test('Create team', async ({ page }) => {
   const addNewTeamsPage = new AddNewTeamsPage(page)
   await addNewTeamsPage.goto();
@@ -26,14 +26,29 @@ test('Create team', async ({ page }) => {
   };
 
   await addNewTeamsPage.createTeam(team);
-
-  //Return to list Teams
   const listTeamPage = new ListTeamPage(page);
   await listTeamPage.goto();
-
-  //Expect the page to contain the name of the team
   await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
+});
 
+test('Create an employee', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
 });
 
 test('Display team', async ({ page }) => {
@@ -48,14 +63,26 @@ test('Display team', async ({ page }) => {
   await listTeamPage.goto();
   const listTeams = await listTeamPage.getListTeams();
 
-  let tableLocator = await listTeamPage.page.locator('tbody tr');
-  let listExpectedTeams = []
-  for (const el of await tableLocator.elementHandles()) {
-    listExpectedTeams.push('Test Team');
-  }
+  let listExpectedTeams = ['Test Team']
   await expect(listTeams).toEqual(listExpectedTeams);
 });
 
+test('Delete empty team', async ({ page }) => {
+  const addNewTeamsPage = new AddNewTeamsPage(page)
+  await addNewTeamsPage.goto();
+  const team = {
+    name: 'Test Team',
+  };
+  await addNewTeamsPage.createTeam(team);
+
+  const listTeamPage = new ListTeamPage(page);
+  await listTeamPage.goto();
+
+  await page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
+  await page.locator('button:has-text("Proceed")').click();
+
+  await expect(listTeamPage.page.locator('body')).toContainText('No teams yet');
+})
 
 test('Display team members', async ({ page }) => {
   const addNewTeamsPage = new AddNewTeamsPage(page)
@@ -80,13 +107,10 @@ test('Display team members', async ({ page }) => {
 
   const listEmployeePage = new ListEmployeePage(page);
   await listEmployeePage.goto();
-  const pageEdit = await listEmployeePage.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
-  await pageEdit.click();
-  const linkAddToTeam = await listEmployeePage.page.getByRole('link', { name: 'Add to team' });
-  await linkAddToTeam.click();
-
-  await listEmployeePage.page.locator('.form-select').selectOption({ label: team.name + ' team' })
-  await listEmployeePage.page.getByRole('button', { name: 'Add' }).click();
+  await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Add to team' }).click();
+  await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
+  await page.getByRole('button', { name: 'Add' }).click();
 
   const listTeamPage = new ListTeamPage(page);
   await listTeamPage.goto();
@@ -94,27 +118,13 @@ test('Display team members', async ({ page }) => {
   const listMembers = await listTeamPage.getListTeamMembers();
 
   await expect(listMembers[0]).toBe(('employee1'));
-
 });
 
-test('Delete empty team', async ({ page }) => {
-  const pageTeams = page.getByRole('link', { name: 'List teams' });
-  await pageTeams.click();
-  await expect(page).toHaveURL(/.*teams/);
 
-  const pageDelete = page.locator('tr').last().locator('a:has-text("Delete")');
-  await pageDelete.click();
-
-  const pageConfirmDelete = page.locator('button:has-text("Proceed")');
-  await pageConfirmDelete.click();
-
-  await expect(page).toHaveURL(/.*teams/);
-});
-
-test('Create an employee', async ({ page }) => {
+test('List all employees with correct informations', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
   await addNewEmployeePage.goto();
-  const employee = {
+  const newEmployee = {
     name: "employee1",
     email: "employee1@email.com",
     address: "11 rue test",
@@ -123,18 +133,8 @@ test('Create an employee', async ({ page }) => {
     hiringDate: "2000-05-25",
     jobTitle: "Testor"
   };
-  await addNewEmployeePage.createEmployee(employee);
+  await addNewEmployeePage.createEmployee(newEmployee);
 
-  //return to list employee
-  const listEmployeePage = new ListEmployeePage(page);
-  await listEmployeePage.goto();
-
-  //test if the list employee contain the new user
-  await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
-
-})
-
-test('List all employees with correct informations', async ({ page }) => {
   const listEmployeePage = new ListEmployeePage(page);
   await listEmployeePage.goto();
 
@@ -142,14 +142,10 @@ test('List all employees with correct informations', async ({ page }) => {
   const employee = ["employee1", "employee1@email.com", "no", "Edit", "Delete"]
 
   let listEmployees = await listEmployeePage.getListEmployee();
-  let listExpectedEmployees = [];
-  for (const el of await tableLocator.elementHandles()) {
-    listExpectedEmployees.push(employee.join('-'));
-  }
+  let listExpectedEmployees = [employee.join('-')];
   await expect(listEmployees).toEqual(listExpectedEmployees);
 });
 
-// Promote as manager
 test('Promote as manager', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
   await addNewEmployeePage.goto();
@@ -167,33 +163,8 @@ test('Promote as manager', async ({ page }) => {
   await listEmployeePage.goto();
   await listEmployeePage.promoteAsManager();
   const promoted = await page.locator('table > tbody > tr').last().locator('td').nth(2).textContent();
-  expect(promoted).toContain("yes");
+  await expect(promoted).toContain("yes");
 });
-
-test('Access to the edit function', async ({ page }) => {
-  const addNewEmployeePage = new AddNewEmployeePage(page)
-  await addNewEmployeePage.goto();
-
-  const employee = {
-    name: "employee1",
-    email: "employee1@email.com",
-    address: "11 rue test",
-    city: "Tokyo",
-    zipCode: "11000",
-    hiringDate: "2000-05-25",
-    jobTitle: "Testor"
-  };
-
-  await addNewEmployeePage.createEmployee(employee);
-
-  const listEmployeePage = new ListEmployeePage(page);
-  await listEmployeePage.goto();
-
-  await listEmployeePage.goToLastEmployeeEditPage();
-
-  //Check if the page is the edit page
-  await expect(page.locator('text=Edit employee')).toBeVisible();
-})
 
 test('Edit an employee', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
@@ -230,15 +201,38 @@ test('Edit an employee', async ({ page }) => {
   await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText('newEmployee1');
 })
 
-// Return to home page
+test('Access to the edit function', async ({ page }) => {
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await listEmployeePage.goToLastEmployeeEditPage();
+
+  //Check if the page is the edit page
+  await expect(page.locator('text=Edit employee')).toBeVisible();
+});
+
 test('Return to home page', async ({ page }) => {
   const listEmployeePage = new ListEmployeePage(page);
   await listEmployeePage.returnToHomePage();
   await expect(page).toHaveURL('https://b.hr.dmerej.info/');
 });
 
-// display employee info before deletion
-test('display employee info before deletion', async ({ page }) => {
+test('Display employee info before deletion', async ({ page }) => {
   const addNewEmployeePage = new AddNewEmployeePage(page)
   await addNewEmployeePage.goto();
   const employee = {
@@ -254,6 +248,50 @@ test('display employee info before deletion', async ({ page }) => {
   const listEmployeePage = new ListEmployeePage(page);
   await listEmployeePage.pressDeleteButton();
   const info = await page.locator('p').first().textContent();
-  expect(info).toContain("name: employee1");
-  expect(info).toContain("email: employee1@email.com");
+  await expect(info).toContain("name: employee1");
+  await expect(info).toContain("email: employee1@email.com");
 });
+
+test('Delete a team with members', async ({ page }) => {
+  const addNewTeamsPage = new AddNewTeamsPage(page)
+  await addNewTeamsPage.goto();
+  const team = {
+    name: 'Test Team',
+  };
+  await addNewTeamsPage.createTeam(team);
+
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+  await addNewEmployeePage.createEmployee(employee);
+
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+  await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+  await page.getByRole('link', { name: 'Add to team' }).click();
+  await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
+  await page.getByRole('button', { name: 'Add' }).click();
+
+  const listTeamPage = new ListTeamPage(page);
+  await listTeamPage.goto();
+  await page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
+  await page.locator('button:has-text("Proceed")').click();
+
+  await expect(listTeamPage.page.locator('body')).toContainText('No teams yet');
+})
+
+
+
+
+
+
+
+

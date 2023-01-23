@@ -16,6 +16,6 @@ export class AddNewTeamsPage {
         await this.page.fill('input[name="name"]', team.name);
 
         // Click the submit button.
-        await this.page.click('button:has-text("Add")');
+        await this.page.getByRole('button', {name : 'Add'}).click();
     }
 }
