@@ -46,4 +46,9 @@ export class ListEmployeePage {
         const updateBasicInfoLink = this.page.locator('a:has-text("Update basic info")');
         await updateBasicInfoLink.click();
     }
+
+    async goToAddressPage() {
+        const updateAddressLink = this.page.locator('a:has-text("Update address")');
+        await updateAddressLink.click();
+    }
 }
