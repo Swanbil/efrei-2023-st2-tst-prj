@@ -40,7 +40,7 @@ test.describe("Employee", () => {
 
     let listEmployees = await listEmployeePage.getListEmployee();
     let listExpectedEmployees = [employee.join('-')];
-    await expect(listEmployees).toEqual(listExpectedEmployees);
+    expect(listEmployees).toEqual(listExpectedEmployees);
   });
 
   test('Promote as manager', async ({ page }) => {
@@ -64,16 +64,10 @@ test.describe("Employee", () => {
 
     await listEmployeePage.goToLastEmployeeEditPage();
     await listEmployeePage.goToBasincInfoPage();
-
-    //Fill new Name and Email
     await page.getByPlaceholder('Name').fill('newEmployee1');
     await page.getByPlaceholder('Email').fill('newemployee1@email.com');
+    await listEmployeePage.pressUpdateButton();
 
-    //Click on button "Update"
-    const updateButton = page.getByRole('button', { name: 'Update' });
-    await updateButton.click();
-
-    //Check if the new name and email are displayed
     await listEmployeePage.goto();
     await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText('newEmployee1');
   });
@@ -89,16 +83,11 @@ test.describe("Employee", () => {
     await listEmployeePage.goToLastEmployeeEditPage();
 
     await listEmployeePage.goToAddressPage();
-    await page.locator('input[name=address_line1] >> visible=true').fill("20 rue test");
-    await page.getByPlaceholder('Zip code').fill('12000');
-    await page.getByPlaceholder('City').fill('Paris');
-
-    const updateButton = page.getByRole('button', { name: 'Update' });
-    await updateButton.click();
+    await listEmployeePage.updateEmployeeAddress("20 rue test", "75013", "Paris");
     await listEmployeePage.goto();
     await listEmployeePage.goToLastEmployeeEditPage();
     await listEmployeePage.goToAddressPage();
-    await expect(page.locator('text=20 rue test')).toBeTruthy();
+    expect(page.locator('text=20 rue test')).toBeTruthy();
   })
 
   test('Access to the edit function', async ({ page }) => {
@@ -108,10 +97,7 @@ test.describe("Employee", () => {
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-
     await listEmployeePage.goToLastEmployeeEditPage();
-
-    //Check if the page is the edit page
     await expect(page.locator('text=Edit employee')).toBeVisible();
   });
 
@@ -122,8 +108,8 @@ test.describe("Employee", () => {
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.pressDeleteButton();
     const info = await page.locator('p').first().textContent();
-    await expect(info).toContain("name: employee1");
-    await expect(info).toContain("email: employee1@email.com");
+    expect(info).toContain(`name: ${fakeEmployee1.name}`);
+    expect(info).toContain(`email: ${fakeEmployee1.email}`);
   });
 
   test('Add an employee to a team', async ({ page }) => {
@@ -137,19 +123,15 @@ test.describe("Employee", () => {
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
-    await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: fakeTeam1.name + ' team' })
-    await page.getByRole('button', { name: 'Add' }).click();
+    await listEmployeePage.addEmployeeToTeam(fakeTeam1.name)
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     await listTeamPage.goToListLastTeamMembers();
     const listMembers = await listTeamPage.getListTeamMembers();
 
-    await expect(listMembers[0]).toBe(('employee1'));
-
-  })
+    expect(listMembers[0]).toBe(('employee1'));
+  });
 
   test('Deletion interface of an employee is visible', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
@@ -171,27 +153,21 @@ test.describe("Employee", () => {
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
-    await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: fakeTeam1.name + ' team' })
-    await page.getByRole('button', { name: 'Add' }).click();
+    await listEmployeePage.addEmployeeToTeam(fakeTeam1.name)
+
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     await listTeamPage.goToListFirstTeamMembers();
     let listMembers = await listTeamPage.getListTeamMembers();
-    await expect(listMembers[0]).toBe(('employee1'));
+    expect(listMembers[0]).toBe(fakeEmployee1.name);
 
     await listEmployeePage.goto();
-    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
-    await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: fakeTeam2.name + ' team' })
-    await page.getByRole('button', { name: 'Add' }).click();
-
+    await listEmployeePage.addEmployeeToTeam(fakeTeam2.name)
     await listTeamPage.goto();
     await listTeamPage.goToListLastTeamMembers();
     listMembers = await listTeamPage.getListTeamMembers();
 
-    await expect(listMembers[0]).toBe(('employee1'));
+    expect(listMembers[0]).toBe(fakeEmployee1.name);
   });
   test('Delete an employee', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
@@ -199,8 +175,7 @@ test.describe("Employee", () => {
     await addNewEmployeePage.createEmployee(fakeEmployee1);
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.pressDeleteButton()
-    await listEmployeePage.page.getByRole('button', { name: 'Proceed' }).click();
-
+    await listEmployeePage.pressProceedButton()
     await listEmployeePage.goto();
 
     await expect(listEmployeePage.page.locator('body')).toContainText('No employees yet');
@@ -216,7 +191,7 @@ test.describe("Team", () => {
     await addNewTeamsPage.createTeam(fakeTeam1);
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
-    await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
+    await expect(await listTeamPage.getLastTeamRow()).toContainText('Test Team');
   });
 
   test('Display team', async ({ page }) => {
@@ -239,9 +214,7 @@ test.describe("Team", () => {
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
-
-    await page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
-    await page.locator('button:has-text("Proceed")').click();
+    await listTeamPage.deleteLastTeam();
 
     await expect(listTeamPage.page.locator('body')).toContainText('No teams yet');
   })
@@ -257,17 +230,14 @@ test.describe("Team", () => {
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
-    await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
-    await page.getByRole('button', { name: 'Add' }).click();
+    await listEmployeePage.addEmployeeToTeam(fakeTeam1.name)
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     await listTeamPage.goToListLastTeamMembers();
     const listMembers = await listTeamPage.getListTeamMembers();
 
-    expect(listMembers[0]).toBe(('employee1'));
+    expect(listMembers[0]).toBe(fakeEmployee1.name);
   });
 
   test('Delete a team with members', async ({ page }) => {
@@ -281,16 +251,11 @@ test.describe("Team", () => {
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
-    await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
-    await page.getByRole('button', { name: 'Add' }).click();
+    await listEmployeePage.addEmployeeToTeam(fakeTeam1.name)
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
-    await page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
-    await page.locator('button:has-text("Proceed")').click();
-
+    await listTeamPage.deleteLastTeam()
     await expect(listTeamPage.page.locator('body')).toContainText('No teams yet');
   })
 

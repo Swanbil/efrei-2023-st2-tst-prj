@@ -38,7 +38,15 @@ export class ListTeamPage {
             listTeamMembers.push(await tableLocator.nth(i).innerText())
         }
         return listTeamMembers;
+    }
 
+    async getLastTeamRow() {
+        return await this.page.locator('table > tbody > tr').last();
+    }
+
+    async deleteLastTeam() {
+        await this.page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
+        await this.page.locator('button:has-text("Proceed")').click();
     }
 
 }

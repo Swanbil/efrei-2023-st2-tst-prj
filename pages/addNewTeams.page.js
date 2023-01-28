@@ -12,10 +12,7 @@ export class AddNewTeamsPage {
     }
 
     async createTeam(team) {
-        // Fill the form.
         await this.page.fill('input[name="name"]', team.name);
-
-        // Click the submit button.
         await this.page.getByRole('button', {name : 'Add'}).click();
     }
 }

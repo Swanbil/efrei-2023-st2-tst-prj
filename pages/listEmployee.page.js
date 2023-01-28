@@ -28,6 +28,19 @@ export class ListEmployeePage {
         const proceedButton = this.page.getByRole('button', { name: 'Proceed' });
         await proceedButton.click();
     }
+    async updateEmployeeAddress(street, zipCode, city) {
+        await this.page.locator('input[name=address_line1] >> visible=true').fill(street);
+        await this.page.getByPlaceholder('Zip code').fill(zipCode);
+        await this.page.getByPlaceholder('City').fill(city);
+        await this.page.getByRole('button', { name: 'Update' }).click();
+    }
+
+    async addEmployeeToTeam(teamName) {
+        await this.page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+        await this.page.getByRole('link', { name: 'Add to team' }).click();
+        await this.page.locator('.form-select').selectOption({ label: teamName + ' team' })
+        await this.page.getByRole('button', { name: 'Add' }).click();
+    }
 
     async goToLastEmployeeEditPage() {
         const pageEdit = this.page.locator('table > tbody > tr').last().locator('a:has-text("Edit")');
@@ -50,5 +63,11 @@ export class ListEmployeePage {
     async goToAddressPage() {
         const updateAddressLink = this.page.locator('a:has-text("Update address")');
         await updateAddressLink.click();
+    }
+    async pressUpdateButton() {
+        await this.page.getByRole('button', { name: 'Update' }).click()
+    }
+    async pressProceedButton(){
+        await this.page.getByRole('button', { name: 'Proceed' }).click();
     }
 }
