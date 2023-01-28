@@ -298,6 +298,27 @@ test.describe("Employee", () => {
 
     await expect(listMembers[0]).toBe(('employee1'));
   });
+   test('Delete an employee', async ({ page }) => {
+    const addNewEmployeePage = new AddNewEmployeePage(page)
+    await addNewEmployeePage.goto();
+    const employee = {
+      name: "employee1",
+      email: "employee1@email.com",
+      address: "11 rue test",
+      city: "Tokyo",
+      zipCode: "11000",
+      hiringDate: "2000-05-25",
+      jobTitle: "Testor"
+    };
+    await addNewEmployeePage.createEmployee(employee);
+    const listEmployeePage = new ListEmployeePage(page);
+    await listEmployeePage.pressDeleteButton()
+    await listEmployeePage.page.getByRole('button', { name: 'Proceed' }).click();
+
+    await listEmployeePage.goto();
+
+    await expect(listEmployeePage.page.locator('body')).toContainText('No employees yet');
+  });
 });
 
 
