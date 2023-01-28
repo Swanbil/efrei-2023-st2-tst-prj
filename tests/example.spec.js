@@ -248,6 +248,56 @@ test.describe("Employee", () => {
     const listEmployeePage = new ListEmployeePage(page);
     await expect(listEmployeePage.page.getByRole('link', { name: 'Delete' })).toBeVisible()
   })
+   test('Change employee team', async ({ page }) => {
+    const addNewTeamsPage = new AddNewTeamsPage(page)
+    await addNewTeamsPage.goto();
+    const team1 = {
+      name: 'Test Team',
+    };
+    const team2 = {
+      name: 'Olympique Marseille',
+    };
+    await addNewTeamsPage.createTeam(team1);
+    await addNewTeamsPage.goto();
+    await addNewTeamsPage.createTeam(team2);
+
+    const addNewEmployeePage = new AddNewEmployeePage(page)
+    await addNewEmployeePage.goto();
+    const employee = {
+      name: "employee1",
+      email: "employee1@email.com",
+      address: "11 rue test",
+      city: "Tokyo",
+      zipCode: "11000",
+      hiringDate: "2000-05-25",
+      jobTitle: "Testor"
+    };
+    await addNewEmployeePage.createEmployee(employee);
+
+    const listEmployeePage = new ListEmployeePage(page);
+    await listEmployeePage.goto();
+    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Add to team' }).click();
+    await page.locator('.form-select').selectOption({ label: team1.name + ' team' })
+    await page.getByRole('button', { name: 'Add' }).click();
+    const listTeamPage = new ListTeamPage(page);
+    await listTeamPage.goto();
+    await listTeamPage.goToListFirstTeamMembers();
+    let listMembers = await listTeamPage.getListTeamMembers();
+    await expect(listMembers[0]).toBe(('employee1'));
+
+    await listEmployeePage.goto();
+    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Add to team' }).click();
+    await page.locator('.form-select').selectOption({ label: team2.name + ' team' })
+    await page.getByRole('button', { name: 'Add' }).click();
+    
+    await listTeamPage.goto();
+    await listTeamPage.goToListLastTeamMembers();
+    listMembers = await listTeamPage.getListTeamMembers();
+
+    await expect(listMembers[0]).toBe(('employee1'));
+  });
 });
 
 

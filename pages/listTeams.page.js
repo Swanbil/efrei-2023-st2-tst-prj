@@ -10,6 +10,10 @@ export class ListTeamPage {
     async goto() {
         await this.page.goto(this.url);
     }
+    async goToListFirstTeamMembers() {
+        const linkViewMembers = this.page.getByRole('link', { name: 'View members' }).first();
+        await linkViewMembers.click();
+    }
 
     async goToListLastTeamMembers() {
         const linkViewMembers = this.page.getByRole('link', { name: 'View members' }).last();
