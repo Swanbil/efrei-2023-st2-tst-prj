@@ -81,7 +81,7 @@ test.describe("Employee", () => {
     await expect(promoted).toContain("yes");
   });
 
-  test('Edit an employee', async ({ page }) => {
+  test('Edit an employee basic info', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
 
@@ -115,6 +115,48 @@ test.describe("Employee", () => {
     await listEmployeePage.goto();
     await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText('newEmployee1');
   });
+
+test('Update employee address', async ({ page }) => {
+  //Create a new employee
+  const addNewEmployeePage = new AddNewEmployeePage(page)
+  await addNewEmployeePage.goto();
+
+  const employee = {
+    name: "employee1",
+    email: "employee1@email.com",
+    address: "11 rue test",
+    city: "Tokyo",
+    zipCode: "11000",
+    hiringDate: "2000-05-25",
+    jobTitle: "Testor"
+  };
+
+  await addNewEmployeePage.createEmployee(employee);
+  
+  //Go to the employee edit page
+  const listEmployeePage = new ListEmployeePage(page);
+  await listEmployeePage.goto();
+
+  await listEmployeePage.goToLastEmployeeEditPage();
+
+  //Go to the address edit page
+  await listEmployeePage.goToAddressPage();
+
+  //Fill new address, city, zipCode without the placeholder
+  await page.locator('input[name=address_line1] >> visible=true').fill("20 rue test");
+  await page.getByPlaceholder('Zip code').fill('12000');
+  await page.getByPlaceholder('City').fill('Paris');
+
+  //Click on button "Update"
+  const updateButton = page.getByRole('button', { name: 'Update' });
+  await updateButton.click();
+
+  //Check if the new address, city, zipCode are displayed
+  await listEmployeePage.goto();
+  await listEmployeePage.goToLastEmployeeEditPage();
+  await listEmployeePage.goToAddressPage();
+  expect(await page.locator('text=20 rue test')).toBeTruthy();
+})
 
   test('Access to the edit function', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
