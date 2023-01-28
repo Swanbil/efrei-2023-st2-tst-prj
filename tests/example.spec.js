@@ -1,4 +1,3 @@
-// @ts-check
 const { test, expect } = require('@playwright/test');
 import { HomePage } from '../pages/home.page';
 import { AddNewEmployeePage } from '../pages/addNewEmployee.page';
@@ -6,6 +5,7 @@ import { AddNewTeamsPage } from '../pages/addNewTeams.page';
 import { ListEmployeePage } from '../pages/listEmployee.page';
 import { ListTeamPage } from '../pages/listTeams.page';
 import { ResetDatabasePage } from '../pages/resetDatabase.page';
+import { fakeEmployee1, fakeTeam1, fakeTeam2 } from './datas/fake-datas';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -21,35 +21,17 @@ test.describe("Employee", () => {
   test('Create an employee', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
 
-    await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(employee.name + " " + employee.email);
+    await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText(fakeEmployee1.name + " " + fakeEmployee1.email);
   });
   test('List all employees with correct informations', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const newEmployee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(newEmployee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -64,16 +46,7 @@ test.describe("Employee", () => {
   test('Promote as manager', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
     await listEmployeePage.promoteAsManager();
@@ -84,18 +57,7 @@ test.describe("Employee", () => {
   test('Edit an employee basic info', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -119,18 +81,7 @@ test.describe("Employee", () => {
   test('Update employee address', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -153,18 +104,7 @@ test.describe("Employee", () => {
   test('Access to the edit function', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -178,16 +118,7 @@ test.describe("Employee", () => {
   test('Display employee info before deletion', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.pressDeleteButton();
     const info = await page.locator('p').first().textContent();
@@ -198,29 +129,17 @@ test.describe("Employee", () => {
   test('Add an employee to a team', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team = {
-      name: 'Test Team',
-    };
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
 
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
     await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
     await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
+    await page.locator('.form-select').selectOption({ label: fakeTeam1.name + ' team' })
     await page.getByRole('button', { name: 'Add' }).click();
 
     const listTeamPage = new ListTeamPage(page);
@@ -232,53 +151,29 @@ test.describe("Employee", () => {
 
   })
 
-  test('Deletion interface of an employee is visible', async({page}) => {
+  test('Deletion interface of an employee is visible', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
     const listEmployeePage = new ListEmployeePage(page);
     await expect(listEmployeePage.page.getByRole('link', { name: 'Delete' })).toBeVisible()
   })
-   test('Change employee team', async ({ page }) => {
+  test('Change employee team', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team1 = {
-      name: 'Test Team',
-    };
-    const team2 = {
-      name: 'Olympique Marseille',
-    };
-    await addNewTeamsPage.createTeam(team1);
+    await addNewTeamsPage.createTeam(fakeTeam1);
     await addNewTeamsPage.goto();
-    await addNewTeamsPage.createTeam(team2);
+    await addNewTeamsPage.createTeam(fakeTeam2);
 
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
     await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
     await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: team1.name + ' team' })
+    await page.locator('.form-select').selectOption({ label: fakeTeam1.name + ' team' })
     await page.getByRole('button', { name: 'Add' }).click();
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
@@ -289,28 +184,19 @@ test.describe("Employee", () => {
     await listEmployeePage.goto();
     await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
     await page.getByRole('link', { name: 'Add to team' }).click();
-    await page.locator('.form-select').selectOption({ label: team2.name + ' team' })
+    await page.locator('.form-select').selectOption({ label: fakeTeam2.name + ' team' })
     await page.getByRole('button', { name: 'Add' }).click();
-    
+
     await listTeamPage.goto();
     await listTeamPage.goToListLastTeamMembers();
     listMembers = await listTeamPage.getListTeamMembers();
 
     await expect(listMembers[0]).toBe(('employee1'));
   });
-   test('Delete an employee', async ({ page }) => {
+  test('Delete an employee', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.pressDeleteButton()
     await listEmployeePage.page.getByRole('button', { name: 'Proceed' }).click();
@@ -327,39 +213,29 @@ test.describe("Team", () => {
   test('Create team', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-
-    const team = {
-      name: 'Test Team',
-    };
-
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     await expect(listTeamPage.page.locator('table > tbody > tr').last()).toContainText('Test Team');
   });
+
   test('Display team', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team = {
-      name: 'Test Team',
-    };
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     const listTeams = await listTeamPage.getListTeams();
 
     let listExpectedTeams = ['Test Team']
-    await expect(listTeams).toEqual(listExpectedTeams);
+    expect(listTeams).toEqual(listExpectedTeams);
   });
 
   test('Delete empty team', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team = {
-      name: 'Test Team',
-    };
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
 
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
@@ -373,23 +249,11 @@ test.describe("Team", () => {
   test('Display team members', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team = {
-      name: 'Test Team',
-    };
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
 
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -403,29 +267,17 @@ test.describe("Team", () => {
     await listTeamPage.goToListLastTeamMembers();
     const listMembers = await listTeamPage.getListTeamMembers();
 
-    await expect(listMembers[0]).toBe(('employee1'));
+    expect(listMembers[0]).toBe(('employee1'));
   });
 
   test('Delete a team with members', async ({ page }) => {
     const addNewTeamsPage = new AddNewTeamsPage(page)
     await addNewTeamsPage.goto();
-    const team = {
-      name: 'Test Team',
-    };
-    await addNewTeamsPage.createTeam(team);
+    await addNewTeamsPage.createTeam(fakeTeam1);
 
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
@@ -454,16 +306,7 @@ test.describe("Functionnality", () => {
   test('Reset database', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-    const employee = {
-      name: "employee1",
-      email: "employee1@email.com",
-      address: "11 rue test",
-      city: "Tokyo",
-      zipCode: "11000",
-      hiringDate: "2000-05-25",
-      jobTitle: "Testor"
-    };
-    await addNewEmployeePage.createEmployee(employee);
+    await addNewEmployeePage.createEmployee(fakeEmployee1);
 
     const resetDbPage = new ResetDatabasePage(page);
     await resetDbPage.goto();
