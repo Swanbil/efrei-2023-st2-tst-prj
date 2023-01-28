@@ -116,52 +116,10 @@ test.describe("Employee", () => {
     await expect(listEmployeePage.page.locator('table > tbody > tr').last()).toContainText('newEmployee1');
   });
 
-test('Update employee address', async ({ page }) => {
-  //Create a new employee
-  const addNewEmployeePage = new AddNewEmployeePage(page)
-  await addNewEmployeePage.goto();
-
-  const employee = {
-    name: "employee1",
-    email: "employee1@email.com",
-    address: "11 rue test",
-    city: "Tokyo",
-    zipCode: "11000",
-    hiringDate: "2000-05-25",
-    jobTitle: "Testor"
-  };
-
-  await addNewEmployeePage.createEmployee(employee);
-  
-  //Go to the employee edit page
-  const listEmployeePage = new ListEmployeePage(page);
-  await listEmployeePage.goto();
-
-  await listEmployeePage.goToLastEmployeeEditPage();
-
-  //Go to the address edit page
-  await listEmployeePage.goToAddressPage();
-
-  //Fill new address, city, zipCode without the placeholder
-  await page.locator('input[name=address_line1] >> visible=true').fill("20 rue test");
-  await page.getByPlaceholder('Zip code').fill('12000');
-  await page.getByPlaceholder('City').fill('Paris');
-
-  //Click on button "Update"
-  const updateButton = page.getByRole('button', { name: 'Update' });
-  await updateButton.click();
-
-  //Check if the new address, city, zipCode are displayed
-  await listEmployeePage.goto();
-  await listEmployeePage.goToLastEmployeeEditPage();
-  await listEmployeePage.goToAddressPage();
-  expect(await page.locator('text=20 rue test')).toBeTruthy();
-})
-
-  test('Access to the edit function', async ({ page }) => {
+  test('Update employee address', async ({ page }) => {
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
-  
+
     const employee = {
       name: "employee1",
       email: "employee1@email.com",
@@ -171,14 +129,48 @@ test('Update employee address', async ({ page }) => {
       hiringDate: "2000-05-25",
       jobTitle: "Testor"
     };
-  
+
     await addNewEmployeePage.createEmployee(employee);
-  
+
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
-  
+
     await listEmployeePage.goToLastEmployeeEditPage();
-  
+
+    await listEmployeePage.goToAddressPage();
+    await page.locator('input[name=address_line1] >> visible=true').fill("20 rue test");
+    await page.getByPlaceholder('Zip code').fill('12000');
+    await page.getByPlaceholder('City').fill('Paris');
+
+    const updateButton = page.getByRole('button', { name: 'Update' });
+    await updateButton.click();
+    await listEmployeePage.goto();
+    await listEmployeePage.goToLastEmployeeEditPage();
+    await listEmployeePage.goToAddressPage();
+    await expect(page.locator('text=20 rue test')).toBeTruthy();
+  })
+
+  test('Access to the edit function', async ({ page }) => {
+    const addNewEmployeePage = new AddNewEmployeePage(page)
+    await addNewEmployeePage.goto();
+
+    const employee = {
+      name: "employee1",
+      email: "employee1@email.com",
+      address: "11 rue test",
+      city: "Tokyo",
+      zipCode: "11000",
+      hiringDate: "2000-05-25",
+      jobTitle: "Testor"
+    };
+
+    await addNewEmployeePage.createEmployee(employee);
+
+    const listEmployeePage = new ListEmployeePage(page);
+    await listEmployeePage.goto();
+
+    await listEmployeePage.goToLastEmployeeEditPage();
+
     //Check if the page is the edit page
     await expect(page.locator('text=Edit employee')).toBeVisible();
   });
@@ -202,6 +194,43 @@ test('Update employee address', async ({ page }) => {
     await expect(info).toContain("name: employee1");
     await expect(info).toContain("email: employee1@email.com");
   });
+
+  test('Add an employee to a team', async ({ page }) => {
+    const addNewTeamsPage = new AddNewTeamsPage(page)
+    await addNewTeamsPage.goto();
+    const team = {
+      name: 'Test Team',
+    };
+    await addNewTeamsPage.createTeam(team);
+
+    const addNewEmployeePage = new AddNewEmployeePage(page)
+    await addNewEmployeePage.goto();
+    const employee = {
+      name: "employee1",
+      email: "employee1@email.com",
+      address: "11 rue test",
+      city: "Tokyo",
+      zipCode: "11000",
+      hiringDate: "2000-05-25",
+      jobTitle: "Testor"
+    };
+    await addNewEmployeePage.createEmployee(employee);
+
+    const listEmployeePage = new ListEmployeePage(page);
+    await listEmployeePage.goto();
+    await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
+    await page.getByRole('link', { name: 'Add to team' }).click();
+    await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
+    await page.getByRole('button', { name: 'Add' }).click();
+
+    const listTeamPage = new ListTeamPage(page);
+    await listTeamPage.goto();
+    await listTeamPage.goToListLastTeamMembers();
+    const listMembers = await listTeamPage.getListTeamMembers();
+
+    await expect(listMembers[0]).toBe(('employee1'));
+
+  })
 });
 
 
@@ -297,7 +326,7 @@ test.describe("Team", () => {
       name: 'Test Team',
     };
     await addNewTeamsPage.createTeam(team);
-  
+
     const addNewEmployeePage = new AddNewEmployeePage(page)
     await addNewEmployeePage.goto();
     const employee = {
@@ -310,25 +339,23 @@ test.describe("Team", () => {
       jobTitle: "Testor"
     };
     await addNewEmployeePage.createEmployee(employee);
-  
+
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.goto();
     await page.locator('table > tbody > tr').last().getByRole('link', { name: 'Edit' }).click();
     await page.getByRole('link', { name: 'Add to team' }).click();
     await page.locator('.form-select').selectOption({ label: 'Test Team' + ' team' })
     await page.getByRole('button', { name: 'Add' }).click();
-  
+
     const listTeamPage = new ListTeamPage(page);
     await listTeamPage.goto();
     await page.locator('table > tbody > tr').last().locator('a:has-text("Delete")').click();
     await page.locator('button:has-text("Proceed")').click();
-  
+
     await expect(listTeamPage.page.locator('body')).toContainText('No teams yet');
   })
 
 });
-
-
 
 
 test.describe("Functionnality", () => {
@@ -336,6 +363,29 @@ test.describe("Functionnality", () => {
     const listEmployeePage = new ListEmployeePage(page);
     await listEmployeePage.returnToHomePage();
     await expect(page).toHaveURL('https://b.hr.dmerej.info/');
+  });
+  test('Reset database', async ({ page }) => {
+    const addNewEmployeePage = new AddNewEmployeePage(page)
+    await addNewEmployeePage.goto();
+    const employee = {
+      name: "employee1",
+      email: "employee1@email.com",
+      address: "11 rue test",
+      city: "Tokyo",
+      zipCode: "11000",
+      hiringDate: "2000-05-25",
+      jobTitle: "Testor"
+    };
+    await addNewEmployeePage.createEmployee(employee);
+
+    const resetDbPage = new ResetDatabasePage(page);
+    await resetDbPage.goto();
+    await resetDbPage.resetDatabase();
+
+    const listEmployeePage = new ListEmployeePage(page);
+    await listEmployeePage.goto();
+
+    await expect(listEmployeePage.page.locator('body')).toContainText('No employees yet');
   });
 
 });
